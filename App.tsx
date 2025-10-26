@@ -5,6 +5,7 @@ import Loader from './components/Loader';
 import DreamDisplay from './components/DreamDisplay';
 import ChatComponent from './components/Chat';
 import { generateDreamImage, interpretDream } from './services/geminiService';
+import { BrainCircuitIcon } from './components/Icons';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.Idle);
@@ -21,13 +22,11 @@ const App: React.FC = () => {
     try {
       setAppState(AppState.Processing);
       
-      // First, generate the interpretation
       const interpretation = await interpretDream(dreamText);
 
-      // Show the interpretation while the image generates in the background
       setDreamData({
         transcription: dreamText,
-        imageUrl: '', // Set image URL to empty to trigger placeholder
+        imageUrl: '',
         interpretation,
       });
       setAppState(AppState.Done);
@@ -39,7 +38,6 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Effect to generate the image after the interpretation is done
   useEffect(() => {
     const generateAndSetImage = async () => {
         if (appState === AppState.Done && dreamData && !dreamData.imageUrl) {
@@ -55,17 +53,15 @@ const App: React.FC = () => {
         }
     };
     generateAndSetImage();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appState, dreamData]);
-
 
   const resetApp = () => {
     setAppState(AppState.Idle);
     setDreamData(null);
     setErrorMessage('');
   };
-
-  const renderContent = () => {
+  
+  const renderLeftColumn = () => {
     switch (appState) {
       case AppState.Idle:
         return (
@@ -74,12 +70,11 @@ const App: React.FC = () => {
           />
         );
       case AppState.Processing:
-        return <Loader message="Weaving your dream's meaning..." />;
+        return <div className="flex items-center justify-center h-full"><Loader message="Weaving your dream's meaning..." /></div>;
       case AppState.Done:
         return dreamData ? (
           <>
             <DreamDisplay dreamData={dreamData} />
-            <ChatComponent dreamData={dreamData} />
              <div className="text-center my-8">
                 <button onClick={resetApp} className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                     Describe Another Dream
@@ -103,8 +98,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans">
-      <header className="text-center p-6 border-b border-gray-700 shadow-md">
+    <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col">
+      <header className="text-center p-6 border-b border-gray-700 shadow-md sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500">
             Lucid Weaver
@@ -112,8 +107,25 @@ const App: React.FC = () => {
         </h1>
         <p className="text-gray-400 mt-2">Your AI-Powered Dream Journal</p>
       </header>
-      <main className="container mx-auto px-4 py-8">
-        {renderContent()}
+      <main className="flex-grow w-full max-w-screen-2xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+                {renderLeftColumn()}
+            </div>
+            <aside className="lg:col-span-1 hidden lg:block">
+                <div className="sticky top-28 h-[calc(100vh-8.5rem)]">
+                    {appState === AppState.Done && dreamData ? (
+                        <ChatComponent dreamData={dreamData} />
+                    ) : (
+                        <div className="bg-gray-800/50 shadow-inner rounded-lg flex flex-col h-full items-center justify-center p-8 border-2 border-dashed border-gray-700">
+                             <BrainCircuitIcon className="w-16 h-16 text-gray-600" />
+                             <p className="text-gray-500 mt-4 text-center font-semibold text-lg">Dream Assistant</p>
+                            <p className="text-gray-600 mt-2 text-center">Your chat assistant will appear here once your dream has been analyzed.</p>
+                        </div>
+                    )}
+                </div>
+            </aside>
+        </div>
       </main>
     </div>
   );

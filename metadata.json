@@ -1,5 +1,7 @@
 {
   "name": "Lucid Weaver: A Multi-Modal Dream Journal",
-  "description": "Describe your dreams in text. The AI generates a surrealist image, provides a psychological interpretation, and lets you chat about the symbols within.",
-  "requestFramePermissions": []
+  "description": "Describe your dreams in text or by voice. The AI generates a surrealist image, provides a psychological interpretation, and lets you chat about the symbols within.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

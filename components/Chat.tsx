@@ -3,11 +3,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Chat } from '@google/genai';
 import { ChatMessage, DreamData } from '../types';
 import { SendIcon, BrainCircuitIcon } from './Icons';
+import { createChat } from '../services/geminiService';
 
 interface ChatProps {
   dreamData: DreamData;
 }
 
+// Fix: Removed apiKey prop as it is now handled by the geminiService.
 const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
   const [chat, setChat] = useState<Chat | null>(null);
   const [history, setHistory] = useState<ChatMessage[]>([]);
@@ -16,31 +18,18 @@ const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const initializeChat = async () => {
-        if (!process.env.API_KEY) {
-            console.error("API Key not found");
-            return;
-        }
-        const ai = new (await import('@google/genai')).GoogleGenAI({ apiKey: process.env.API_KEY });
-        const initialPrompt = `You are a dream analysis assistant. The user has just had the following dream: "${dreamData.transcription}". The initial interpretation is: "${dreamData.interpretation}". Your role is to answer follow-up questions about specific symbols, feelings, or parts of the dream. Be helpful, insightful, and maintain the persona of a dream expert. Keep your answers concise and focused on the user's question.`;
+    const systemInstruction = `You are a dream analysis assistant. The user has just had the following dream: "${dreamData.transcription}". The initial interpretation is: "${dreamData.interpretation}". Your role is to answer follow-up questions about specific symbols, feelings, or parts of the dream. Be helpful, insightful, and maintain the persona of a dream expert. Keep your answers concise and focused on the user's question.`;
 
-        const newChat = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: {
-                systemInstruction: initialPrompt
-            }
-        });
-        setChat(newChat);
+    // Fix: createChat no longer requires an apiKey.
+    const newChat = createChat(systemInstruction);
+    setChat(newChat);
 
-        const initialBotMessage: ChatMessage = {
-            role: 'model',
-            text: "Do you have any questions about the symbols or feelings in your dream? Feel free to ask."
-        };
-        setHistory([initialBotMessage]);
+    const initialBotMessage: ChatMessage = {
+        role: 'model',
+        text: "Do you have any questions about the symbols or feelings in your dream? Feel free to ask."
     };
-    initializeChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setHistory([initialBotMessage]);
+  // Fix: Removed apiKey from dependency array.
   }, [dreamData]);
   
   useEffect(() => {
@@ -76,11 +65,11 @@ const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 mt-8">
-        <div className="bg-gray-800 shadow-2xl rounded-lg flex flex-col h-[60vh]">
+    <div className="w-full h-full">
+        <div className="bg-gray-800 shadow-2xl rounded-lg flex flex-col h-full">
             <div className="p-4 border-b border-gray-700 flex items-center space-x-3">
                 <BrainCircuitIcon className="w-8 h-8 text-purple-400" />
-                <h3 className="text-xl font-bold text-purple-300">Explore Your Dream</h3>
+                <h3 className="text-xl font-bold text-purple-300">Dream Assistant</h3>
             </div>
             <div ref={chatContainerRef} className="flex-1 p-4 space-y-4 overflow-y-auto">
                 {history.map((msg, index) => (

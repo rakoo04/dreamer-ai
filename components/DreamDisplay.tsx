@@ -5,6 +5,7 @@ import { generateInterpretationAudio } from '../services/geminiService';
 
 interface DreamDisplayProps {
   dreamData: DreamData;
+  apiKey: string;
 }
 
 // Audio decoding helpers
@@ -48,7 +49,7 @@ const ImagePlaceholder = () => (
     </div>
   );
 
-const DreamDisplay: React.FC<DreamDisplayProps> = ({ dreamData }) => {
+const DreamDisplay: React.FC<DreamDisplayProps> = ({ dreamData, apiKey }) => {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -90,7 +91,7 @@ const DreamDisplay: React.FC<DreamDisplayProps> = ({ dreamData }) => {
     setIsGeneratingAudio(true);
     try {
         const interpretationText = dreamData.interpretation.replace(/#.*$/m, '').trim();
-        const base64Audio = await generateInterpretationAudio(interpretationText);
+        const base64Audio = await generateInterpretationAudio(apiKey, interpretationText);
         audioDataRef.current = base64Audio;
         await playAudio(base64Audio);
     } catch (error) {
@@ -98,7 +99,7 @@ const DreamDisplay: React.FC<DreamDisplayProps> = ({ dreamData }) => {
     } finally {
         setIsGeneratingAudio(false);
     }
-  }, [isPlaying, dreamData.interpretation, playAudio]);
+  }, [isPlaying, dreamData.interpretation, playAudio, apiKey]);
 
   const handleDownload = async () => {
     setIsDownloading(true);

@@ -7,10 +7,10 @@ import { createChat } from '../services/geminiService';
 
 interface ChatProps {
   dreamData: DreamData;
+  apiKey: string;
 }
 
-// Fix: Removed apiKey prop as it is now handled by the geminiService.
-const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
+const ChatComponent: React.FC<ChatProps> = ({ dreamData, apiKey }) => {
   const [chat, setChat] = useState<Chat | null>(null);
   const [history, setHistory] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -20,8 +20,7 @@ const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
   useEffect(() => {
     const systemInstruction = `You are a dream analysis assistant. The user has just had the following dream: "${dreamData.transcription}". The initial interpretation is: "${dreamData.interpretation}". Your role is to answer follow-up questions about specific symbols, feelings, or parts of the dream. Be helpful, insightful, and maintain the persona of a dream expert. Keep your answers concise and focused on the user's question.`;
 
-    // Fix: createChat no longer requires an apiKey.
-    const newChat = createChat(systemInstruction);
+    const newChat = createChat(apiKey, systemInstruction);
     setChat(newChat);
 
     const initialBotMessage: ChatMessage = {
@@ -29,8 +28,7 @@ const ChatComponent: React.FC<ChatProps> = ({ dreamData }) => {
         text: "Do you have any questions about the symbols or feelings in your dream? Feel free to ask."
     };
     setHistory([initialBotMessage]);
-  // Fix: Removed apiKey from dependency array.
-  }, [dreamData]);
+  }, [dreamData, apiKey]);
   
   useEffect(() => {
     if (chatContainerRef.current) {

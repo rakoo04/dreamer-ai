@@ -1,10 +1,8 @@
 
 import { GoogleGenAI, Chat, Modality } from "@google/genai";
 
-// Fix: Removed apiKey parameter. API key should be handled by environment variables.
-export const generateDreamImage = async (dreamTranscription: string): Promise<string> => {
-  // Fix: Initialize with API key from environment variable.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+export const generateDreamImage = async (apiKey: string, dreamTranscription: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `Generate a surrealist and fantastical painting in a 16:9 widescreen aspect ratio that captures the essence of this dream: "${dreamTranscription}". The image should be rich in symbolism and dream-like logic, but with recognizable figures and scenes. Aim for a visually compelling and imaginative style that is neither overly dark nor pessimistic, reflecting the nuanced emotions of the dream.`;
   
   try {
@@ -38,10 +36,8 @@ export const generateDreamImage = async (dreamTranscription: string): Promise<st
   }
 };
 
-// Fix: Removed apiKey parameter. API key should be handled by environment variables.
-export const interpretDream = async (dreamTranscription: string): Promise<string> => {
-  // Fix: Initialize with API key from environment variable.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+export const interpretDream = async (apiKey: string, dreamTranscription: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey });
   const model = 'gemini-2.5-pro';
   const systemInstruction = `You are a dream psychologist specializing in Jungian analysis. Analyze the following dream transcript. Provide a structured interpretation in Markdown format.
 - Start with a title: '# Dream Interpretation'.
@@ -63,8 +59,8 @@ export const interpretDream = async (dreamTranscription: string): Promise<string
   }
 };
 
-export const generateInterpretationAudio = async (textToSpeak: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+export const generateInterpretationAudio = async (apiKey: string, textToSpeak: string): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey });
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts",
@@ -90,10 +86,8 @@ export const generateInterpretationAudio = async (textToSpeak: string): Promise<
 };
 
 
-// Fix: Removed apiKey parameter. API key should be handled by environment variables.
-export const createChat = (systemInstruction: string): Chat => {
-    // Fix: Initialize with API key from environment variable.
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+export const createChat = (apiKey: string, systemInstruction: string): Chat => {
+    const ai = new GoogleGenAI({ apiKey });
     return ai.chats.create({
         model: 'gemini-2.5-flash',
         config: {
